@@ -26,6 +26,13 @@ const dayColors = [
   'bg-orange-500',
 ];
 
+// Required for static export - tells Next.js which IDs to pre-render
+export function generateStaticParams() {
+  return mockTrips.map((trip) => ({
+    id: trip.id,
+  }));
+}
+
 function TripPageContent({ tripId }: { tripId: string }) {
   const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
@@ -34,8 +41,7 @@ function TripPageContent({ tripId }: { tripId: string }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Try sessionStorage first, then mock data
-    const stored = sessionStorage.getItem(`trip-${tripId}`);
+    const stored = sessionStorage.getItem(\`trip-\${tripId}\`);
     if (stored) {
       setTrip(JSON.parse(stored));
     } else {
@@ -46,7 +52,7 @@ function TripPageContent({ tripId }: { tripId: string }) {
 
   const handleShare = () => {
     if (!trip?.shareToken) return;
-    const url = `${window.location.origin}/share/${trip.shareToken}`;
+    const url = \`\${window.location.origin}/share/\${trip.shareToken}\`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -66,7 +72,6 @@ function TripPageContent({ tripId }: { tripId: string }) {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Trip Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-start justify-between gap-4">
@@ -109,7 +114,6 @@ function TripPageContent({ tripId }: { tripId: string }) {
                 </div>
               )}
             </div>
-
             <div className="flex items-center gap-2 shrink-0">
               <Button variant="outline" size="sm" onClick={handleShare}>
                 {copied ? <Check className="h-4 w-4 mr-1.5 text-green-500" /> : <Share2 className="h-4 w-4 mr-1.5" />}
@@ -121,8 +125,6 @@ function TripPageContent({ tripId }: { tripId: string }) {
               </Button>
             </div>
           </div>
-
-          {/* Day Filter Pills */}
           <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedDay(null)}
@@ -156,11 +158,8 @@ function TripPageContent({ tripId }: { tripId: string }) {
           </div>
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Left: Itinerary */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-900">Itinerary</h2>
             {trip.itinerary
@@ -184,8 +183,6 @@ function TripPageContent({ tripId }: { tripId: string }) {
                 </motion.div>
               ))}
           </div>
-
-          {/* Right: Map */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-900">Map</h2>
             <div className="sticky top-24">
@@ -195,8 +192,6 @@ function TripPageContent({ tripId }: { tripId: string }) {
                 onActivityClick={(activity) => setActiveActivity(activity)}
                 className="h-[600px] shadow-lg shadow-slate-200/50"
               />
-              
-              {/* Active Activity Card */}
               {activeActivity && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
