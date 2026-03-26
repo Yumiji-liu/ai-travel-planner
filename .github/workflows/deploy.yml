@@ -1,12 +1,11 @@
-name: Deploy to Cloudflare Pages
+name: Build and Push to Dist Branch
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,9 +27,12 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy out --project-name=ai-travel-planner --commit-message="${{ github.event.head_commit.message }}"
+      - name: Push dist branch
+        run: |
+          git checkout -b dist
+          git rm -rf .
+          cp -r out/* .
+          rm -rf out
+          git add -A
+          git commit -m "Build: ${{ github.sha }} - ${{ github.event.head_commit.message }}"
+          git push origin dist --force
