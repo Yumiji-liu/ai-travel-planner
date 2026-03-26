@@ -11,6 +11,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure git
+        run: |
+          git config --global user.email "ci@github-actions"
+          git config --global user.name "GitHub Actions"
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -29,10 +34,10 @@ jobs:
 
       - name: Push dist branch
         run: |
-          git checkout -b dist
+          git checkout --orphan dist
           git rm -rf .
-          cp -r out/* .
+          cp -r out/ .
           rm -rf out
           git add -A
-          git commit -m "Build: ${{ github.sha }} - ${{ github.event.head_commit.message }}"
+          git commit -m "Build: ${{ github.sha }}"
           git push origin dist --force
