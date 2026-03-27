@@ -54,18 +54,21 @@ jobs:
 
       - name: Push to dist branch
         run: |
-          # Backup built output
-          cp -r out /tmp/dist_backup
-          # Create orphan dist branch
+          # Copy only the static export (out/) to a temp location OUTSIDE the repo
+          mkdir -p /tmp/ai-travel-dist
+          cp -r out/. /tmp/ai-travel-dist/
+
+          # Create new dist branch with no history
           git checkout --orphan dist
-          # Remove everything tracked (git rm handles ignored files via --ignore-unmatch won't help)
-          # Use git ls-files to remove only tracked files
-          git rm -rf . --quiet || true
-          # Also remove leftover directories that were in .gitignore on main
-          rm -rf .next node_modules out 2>/dev/null || true
-          # Restore built files (they don't have .next or node_modules)
-          cp -r /tmp/dist_backup/out/* .
-          rm -rf /tmp/dist_backup
+
+          # Remove everything from working tree
+          git ls-files -z | xargs -0 rm -f 2>/dev/null || true
+          rm -rf .next node_modules out .gitignore .gitattributes 2>/dev/null || true
+
+          # Copy only the static export files
+          cp -r /tmp/ai-travel-dist/. .
+          rm -rf /tmp/ai-travel-dist
+
           git add -A
           git commit -m "Build: ${GITHUB_SHA}"
           git push -f origin dist
