@@ -54,12 +54,15 @@ jobs:
 
       - name: Push to dist branch
         run: |
-          git checkout --orphan dist || git checkout dist
+          # Backup built output before switching branches
+          mkdir -p /tmp/dist_backup
+          cp -r out/* /tmp/dist_backup/
+          # Create orphan dist branch and clear working tree
+          git checkout --orphan dist
           git rm -rf . --quiet || true
-          git clean -fdx
-          # Only copy the static export output (out/), nothing else
-          cp -r out/* .
-          rm -rf out
+          # Restore built files
+          cp -r /tmp/dist_backup/* .
+          rm -rf /tmp/dist_backup
           git add -A
           git commit -m "Build: ${GITHUB_SHA}"
           git push -f origin dist
