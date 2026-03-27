@@ -54,10 +54,12 @@ jobs:
 
       - name: Push to dist branch
         run: |
-          git checkout --orphan dist || true
+          git checkout --orphan dist || git checkout dist
           git rm -rf . --quiet || true
+          git clean -fdx
+          # Only copy the static export output (out/), nothing else
           cp -r out/* .
           rm -rf out
           git add -A
-          git commit -m "Build: ${GITHUB_SHA}" || git commit --amend --no-edit
+          git commit -m "Build: ${GITHUB_SHA}"
           git push -f origin dist
