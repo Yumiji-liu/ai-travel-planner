@@ -54,14 +54,17 @@ jobs:
 
       - name: Push to dist branch
         run: |
-          # Backup built output before switching branches
-          mkdir -p /tmp/dist_backup
-          cp -r out/* /tmp/dist_backup/
-          # Create orphan dist branch and clear working tree
+          # Backup built output
+          cp -r out /tmp/dist_backup
+          # Create orphan dist branch
           git checkout --orphan dist
+          # Remove everything tracked (git rm handles ignored files via --ignore-unmatch won't help)
+          # Use git ls-files to remove only tracked files
           git rm -rf . --quiet || true
-          # Restore built files
-          cp -r /tmp/dist_backup/* .
+          # Also remove leftover directories that were in .gitignore on main
+          rm -rf .next node_modules out 2>/dev/null || true
+          # Restore built files (they don't have .next or node_modules)
+          cp -r /tmp/dist_backup/out/* .
           rm -rf /tmp/dist_backup
           git add -A
           git commit -m "Build: ${GITHUB_SHA}"
