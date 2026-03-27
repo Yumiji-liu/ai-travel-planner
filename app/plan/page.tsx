@@ -341,7 +341,7 @@ function PlanPageContent() {
                 We've created a personalized itinerary for <strong>{destination}</strong>. 
                 Review it, explore the map, and customize as you like.
               </p>
-              <Button size="lg" onClick={() => router.push(`/trip/${tripId}`)}>
+              <Button size="lg" onClick={() => { window.location.href = `/#/trip/${tripId}`; }}>
                 View My Itinerary
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>

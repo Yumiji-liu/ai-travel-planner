@@ -1,10 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { Sparkles, MapPin, Clock, Globe2, Shield, Zap, ChevronRight, Star, Users } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const TripPageClient = dynamic(() => import('./trip/[id]/TripPageClient'), { ssr: false });
 
 const features = [
   {
@@ -52,6 +55,21 @@ const testimonials = [
 
 export default function HomePage() {
   const [destination, setDestination] = useState('');
+  const [tripId, setTripId] = useState<string | null>(null);
+
+  // Handle hash routing for trip pages (#/trip/:id)
+  useEffect(() => {
+    const hash = window.location.hash;
+    const match = hash.match(/^#\/trip\/(.+)$/);
+    if (match) {
+      setTripId(match[1]);
+    }
+  }, []);
+
+  // Early return for trip pages via hash routing
+  if (tripId) {
+    return <TripPageClient tripId={tripId} />;
+  }
 
   return (
     <div className="flex flex-col">
